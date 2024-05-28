@@ -123,3 +123,14 @@ export const useDeleteVenueWithCascade = () => {
         },
     });
 };
+
+// Add a new function to handle event deletion
+export const useDeleteEvent = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => fromSupabase(supabase.from('events').delete().eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('events');
+        },
+    });
+};

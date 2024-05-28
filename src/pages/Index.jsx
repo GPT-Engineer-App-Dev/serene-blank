@@ -1,20 +1,34 @@
 import { useState } from "react";
 import { Container, VStack, Box, Text, Button, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, FormControl, FormLabel, Select } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { useEvents, useAddEvent, useVenues } from "../integrations/supabase";
+import { useEvents, useAddEvent, useVenues, useDeleteEvent } from "../integrations/supabase";
 
 const Index = () => {
   const { data: events, error: eventsError, isLoading: eventsLoading } = useEvents();
   const addEventMutation = useAddEvent();
+  const deleteEventMutation = useDeleteEvent();
   const { data: venues } = useVenues();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [newEvent, setNewEvent] = useState({ name: "", date: "", description: "", venue_id: "" });
+  const [deletingEventId, setDeletingEventId] = useState(null);
 
   const handleAddEvent = () => {
     addEventMutation.mutate(newEvent, {
       onSuccess: () => {
         onClose();
-        setNewEvent({ name: "", date: "", description: "" });
+        setNewEvent({ name: "", date: "", description: "", venue_id: "" });
+      },
+    });
+  };
+
+  const handleDeleteEvent = (id) => {
+    setDeletingEventId(id);
+    deleteEventMutation.mutate(id, {
+      onSuccess: () => {
+        setDeletingEventId(null);
+      },
+      onError: () => {
+        setDeletingEventId(null);
       },
     });
   };
@@ -39,6 +53,15 @@ const Index = () => {
             <Text>{event.date}</Text>
             <Text>{event.description}</Text>
             <Button as={Link} to={`/event/${event.id}`} mt={2}>View Details</Button>
+            <Button
+              colorScheme="red"
+              onClick={() => handleDeleteEvent(event.id)}
+              isLoading={deletingEventId === event.id}
+              mt={2}
+              ml={2}
+            >
+              Delete
+            </Button>
           </Box>
         ))}
       </VStack>
@@ -61,7 +84,7 @@ const Index = () => {
               <FormLabel>Description</FormLabel>
               <Input name="description" value={newEvent.description} onChange={handleChange} />
             </FormControl>
-          <FormControl id="venue" isRequired mt={4}>
+            <FormControl id="venue" isRequired mt={4}>
               <FormLabel>Venue</FormLabel>
               <Select name="venue_id" value={newEvent.venue_id} onChange={handleChange}>
                 <option value="">Select a venue</option>
