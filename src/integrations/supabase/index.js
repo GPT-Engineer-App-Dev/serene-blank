@@ -19,33 +19,50 @@ const fromSupabase = async (query) => {
 
 /* supabase integration types
 
-// EXAMPLE TYPES SECTION
-
-Foo // table: foos
+Event // table: events
     id: number
-    title: string
-    bars?: Bar[] // available if .select('*,bars(*)') was done
+    created_at: string
+    name: string
+    date: string
+    description: string
+    comments?: Comment[] // available if .select('*,comments(*)') was done
 
-Bar // table: bars
+Comment // table: comments
     id: number
-    foo_id: number // foreign key to Foo
-	
+    created_at: string
+    content: string
+    event_id: number // foreign key to Event
+
 */
 
 // hooks
 
-// EXAMPLE HOOKS SECTION
+export const useEvents = () => useQuery({
+    queryKey: ['events'],
+    queryFn: () => fromSupabase(supabase.from('events').select('*,comments(*)')),
+});
 
-export const useFoo = ()=> useQuery({
-    queryKey: ['foo'],
-    queryFn: fromSupabase(supabase.from('foo').select('*,bars(*)')),
-})
-export const useAddFoo = () => {
+export const useAddEvent = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (newFoo)=> fromSupabase(supabase.from('foo').insert([{ title: newFoo.title }])),
-        onSuccess: ()=> {
-            queryClient.invalidateQueries('foo');
+        mutationFn: (newEvent) => fromSupabase(supabase.from('events').insert([newEvent])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('events');
+        },
+    });
+};
+
+export const useComments = (eventId) => useQuery({
+    queryKey: ['comments', eventId],
+    queryFn: () => fromSupabase(supabase.from('comments').select('*').eq('event_id', eventId)),
+});
+
+export const useAddComment = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (newComment) => fromSupabase(supabase.from('comments').insert([newComment])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('comments');
         },
     });
 };
