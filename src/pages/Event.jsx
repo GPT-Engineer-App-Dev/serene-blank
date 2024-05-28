@@ -1,12 +1,14 @@
 import { useParams } from "react-router-dom";
 import { Container, Box, Text, VStack, Button, FormControl, FormLabel, Textarea } from "@chakra-ui/react";
-import { useComments, useAddComment, useEvents, useVenues } from "../integrations/supabase";
+import { useComments, useAddComment, useEvents, useVenues, useDeleteEvent } from "../integrations/supabase";
 import { useState } from "react";
 
 const Event = () => {
   const { id } = useParams();
   const [newComment, setNewComment] = useState("");
+  const [deletingEventId, setDeletingEventId] = useState(null);
   const addCommentMutation = useAddComment();
+  const deleteEventMutation = useDeleteEvent();
   const { data: events, error: eventsError, isLoading: eventsLoading } = useEvents();
   const { data: comments, error: commentsError, isLoading: commentsLoading } = useComments(id);
   const { data: venues } = useVenues();
@@ -16,6 +18,18 @@ const Event = () => {
     addCommentMutation.mutate({ content: newComment, event_id: id }, {
       onSuccess: () => {
         setNewComment("");
+      },
+    });
+  };
+
+  const handleDeleteEvent = (id) => {
+    setDeletingEventId(id);
+    deleteEventMutation.mutate(id, {
+      onSuccess: () => {
+        setDeletingEventId(null);
+      },
+      onError: () => {
+        setDeletingEventId(null);
       },
     });
   };
@@ -36,6 +50,14 @@ const Event = () => {
         <Text>{event.date}</Text>
         <Text>{event.description}</Text>
         <Text>{venue ? venue.name : "No venue selected"}</Text>
+        <Button
+          colorScheme="red"
+          onClick={() => handleDeleteEvent(event.id)}
+          isLoading={deletingEventId === event.id}
+          mt={2}
+        >
+          Delete Event
+        </Button>
       </Box>
       <VStack spacing={4} mt={10} w="100%">
         <Text fontSize="2xl" fontWeight="bold">Comments</Text>
