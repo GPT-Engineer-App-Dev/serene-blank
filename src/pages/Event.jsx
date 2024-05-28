@@ -27,6 +27,8 @@ const Event = () => {
     deleteEventMutation.mutate(id, {
       onSuccess: () => {
         setDeletingEventId(null);
+        // Redirect to home page after deletion
+        window.location.href = "/";
       },
       onError: () => {
         setDeletingEventId(null);

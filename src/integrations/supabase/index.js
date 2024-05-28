@@ -128,7 +128,18 @@ export const useDeleteVenueWithCascade = () => {
 export const useDeleteEvent = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (id) => fromSupabase(supabase.from('events').delete(id)),
+        mutationFn: async (id) => {
+            try {
+                await fromSupabase(supabase.from('events').delete().eq('id', id));
+            } catch (error) {
+                if (error.message.includes('409')) {
+                    // Handle conflict error by cascading delete
+                    await fromSupabase(supabase.rpc('delete_event_with_cascade', { event_id: id }));
+                } else {
+                    throw error;
+                }
+            }
+        },
         onSuccess: () => {
             queryClient.invalidateQueries('events');
         },
