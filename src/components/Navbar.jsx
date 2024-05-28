@@ -13,6 +13,7 @@ const Navbar = () => {
           <Button as={Link} to="/" variant="ghost" mr={4}>Home</Button>
           <Button as={Link} to="/about" variant="ghost" mr={4}>About</Button>
           <Button as={Link} to="/services" variant="ghost" mr={4}>Services</Button>
+          <Button as={Link} to="/venues" variant="ghost" mr={4}>Venues</Button>
           <Button as={Link} to="/contact" variant="ghost">Contact</Button>
         </Box>
       </Flex>

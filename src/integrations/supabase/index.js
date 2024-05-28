@@ -66,3 +66,38 @@ export const useAddComment = () => {
         },
     });
 };
+
+export const useVenues = () => useQuery({
+    queryKey: ['venues'],
+    queryFn: () => fromSupabase(supabase.from('venues').select('*')),
+});
+
+export const useAddVenue = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (newVenue) => fromSupabase(supabase.from('venues').insert([newVenue])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('venues');
+        },
+    });
+};
+
+export const useUpdateVenue = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (updatedVenue) => fromSupabase(supabase.from('venues').update(updatedVenue).eq('id', updatedVenue.id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('venues');
+        },
+    });
+};
+
+export const useDeleteVenue = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => fromSupabase(supabase.from('venues').delete().eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('venues');
+        },
+    });
+};

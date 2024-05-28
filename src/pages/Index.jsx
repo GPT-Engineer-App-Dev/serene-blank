@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { Container, VStack, Box, Text, Button, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, FormControl, FormLabel } from "@chakra-ui/react";
+import { Container, VStack, Box, Text, Button, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, FormControl, FormLabel, Select } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { useEvents, useAddEvent } from "../integrations/supabase";
+import { useEvents, useAddEvent, useVenues } from "../integrations/supabase";
 
 const Index = () => {
   const { data: events, error: eventsError, isLoading: eventsLoading } = useEvents();
   const addEventMutation = useAddEvent();
+  const { data: venues } = useVenues();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [newEvent, setNewEvent] = useState({ name: "", date: "", description: "" });
+  const [newEvent, setNewEvent] = useState({ name: "", date: "", description: "", venue_id: "" });
 
   const handleAddEvent = () => {
     addEventMutation.mutate(newEvent, {
@@ -59,6 +60,15 @@ const Index = () => {
             <FormControl id="description" isRequired mt={4}>
               <FormLabel>Description</FormLabel>
               <Input name="description" value={newEvent.description} onChange={handleChange} />
+            </FormControl>
+          <FormControl id="venue" isRequired mt={4}>
+              <FormLabel>Venue</FormLabel>
+              <Select name="venue_id" value={newEvent.venue_id} onChange={handleChange}>
+                <option value="">Select a venue</option>
+                {venues && venues.map(venue => (
+                  <option key={venue.id} value={venue.id}>{venue.name}</option>
+                ))}
+              </Select>
             </FormControl>
           </ModalBody>
           <ModalFooter>

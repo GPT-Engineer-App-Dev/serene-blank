@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
-import { Container, Box, Text, VStack, Button, FormControl, FormLabel, Input, Textarea } from "@chakra-ui/react";
-import { useComments, useAddComment, useEvents } from "../integrations/supabase";
+import { Container, Box, Text, VStack, Button, FormControl, FormLabel, Textarea } from "@chakra-ui/react";
+import { useComments, useAddComment, useEvents, useVenues } from "../integrations/supabase";
 import { useState } from "react";
 
 const Event = () => {
@@ -9,6 +9,7 @@ const Event = () => {
   const addCommentMutation = useAddComment();
   const { data: events, error: eventsError, isLoading: eventsLoading } = useEvents();
   const { data: comments, error: commentsError, isLoading: commentsLoading } = useComments(id);
+  const { data: venues } = useVenues();
 
   const handleAddComment = () => {
     if (newComment.trim() === "") return;
@@ -24,6 +25,7 @@ const Event = () => {
   if (commentsError) return <Text>Error loading comments: {commentsError.message}</Text>;
 
   const event = events.find(event => event.id === parseInt(id));
+  const venue = venues.find(venue => venue.id === event.venue_id);
 
   if (!event) return <Text>Event not found</Text>;
 
@@ -33,6 +35,7 @@ const Event = () => {
         <Text fontSize="4xl" fontWeight="bold">{event.name}</Text>
         <Text>{event.date}</Text>
         <Text>{event.description}</Text>
+        <Text>{venue ? venue.name : "No venue selected"}</Text>
       </Box>
       <VStack spacing={4} mt={10} w="100%">
         <Text fontSize="2xl" fontWeight="bold">Comments</Text>
@@ -41,7 +44,7 @@ const Event = () => {
             <Text>{comment.content}</Text>
           </Box>
         ))}
-      <Box p={5} shadow="md" borderWidth="1px" w="100%">
+        <Box p={5} shadow="md" borderWidth="1px" w="100%">
           <FormControl id="new-comment" isRequired>
             <FormLabel>Add a Comment</FormLabel>
             <Textarea
