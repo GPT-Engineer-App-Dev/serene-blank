@@ -1,17 +1,25 @@
-// Update this page (the content is just a fallback if you fail and example)
-// Use chakra-ui
-import { Container, Text, VStack } from "@chakra-ui/react";
-
-// Example of using react-icons
-// import { FaRocket } from "react-icons/fa";
-// <IconButton aria-label="Add" icon={<FaRocket />} size="lg" />; // IconButton would also have to be imported from chakra
+import { Container, VStack, Box, Text, Flex, Spacer, Button } from "@chakra-ui/react";
 
 const Index = () => {
   return (
-    <Container centerContent maxW="container.md" height="100vh" display="flex" flexDirection="column" justifyContent="center" alignItems="center">
-      <VStack spacing={4}>
-        <Text fontSize="2xl">Your Blank Canvas</Text>
-        <Text>Chat with the agent to start making edits.</Text>
+    <Container maxW="container.xl" p={0} centerContent>
+      <Box w="100%" bg="white" boxShadow="md">
+        <Flex as="nav" align="center" justify="space-between" wrap="wrap" padding="1.5rem" bg="white" color="black">
+          <Box>
+            <Text fontSize="xl" fontWeight="bold">BrandName</Text>
+          </Box>
+          <Spacer />
+          <Box>
+            <Button variant="ghost" mr={4}>Home</Button>
+            <Button variant="ghost" mr={4}>About</Button>
+            <Button variant="ghost" mr={4}>Services</Button>
+            <Button variant="ghost">Contact</Button>
+          </Box>
+        </Flex>
+      </Box>
+      <VStack spacing={4} mt={10}>
+        <Text fontSize="4xl" fontWeight="bold">Welcome to Our Landing Page</Text>
+        <Text fontSize="lg">We are glad to have you here. Explore our services and get to know more about us.</Text>
       </VStack>
     </Container>
   );
