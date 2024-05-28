@@ -1,12 +1,23 @@
 import { useParams } from "react-router-dom";
-import { Container, Box, Text, VStack } from "@chakra-ui/react";
-import { useComments } from "../integrations/supabase";
-import { useEvents } from "../integrations/supabase";
+import { Container, Box, Text, VStack, Button, FormControl, FormLabel, Input, Textarea } from "@chakra-ui/react";
+import { useComments, useAddComment, useEvents } from "../integrations/supabase";
+import { useState } from "react";
 
 const Event = () => {
   const { id } = useParams();
+  const [newComment, setNewComment] = useState("");
+  const addCommentMutation = useAddComment();
   const { data: events, error: eventsError, isLoading: eventsLoading } = useEvents();
   const { data: comments, error: commentsError, isLoading: commentsLoading } = useComments(id);
+
+  const handleAddComment = () => {
+    if (newComment.trim() === "") return;
+    addCommentMutation.mutate({ content: newComment, event_id: id }, {
+      onSuccess: () => {
+        setNewComment("");
+      },
+    });
+  };
 
   if (eventsLoading || commentsLoading) return <Text>Loading...</Text>;
   if (eventsError) return <Text>Error loading event: {eventsError.message}</Text>;
@@ -30,6 +41,27 @@ const Event = () => {
             <Text>{comment.content}</Text>
           </Box>
         ))}
+      <Box p={5} shadow="md" borderWidth="1px" w="100%">
+          <FormControl id="new-comment" isRequired>
+            <FormLabel>Add a Comment</FormLabel>
+            <Textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Write your comment here..."
+            />
+          </FormControl>
+          <Button
+            mt={2}
+            colorScheme="blue"
+            onClick={handleAddComment}
+            isLoading={addCommentMutation.isLoading}
+          >
+            Submit
+          </Button>
+          {addCommentMutation.error && (
+            <Text color="red.500" mt={2}>Error adding comment: {addCommentMutation.error.message}</Text>
+          )}
+        </Box>
       </VStack>
     </Container>
   );
